@@ -38,7 +38,8 @@ const joi2MongoSchema = (joiSchema, special = {}, schemaOnly = {}, joiOnly = {})
 module.exports = container => {
   container.registerValue('ObjectId', mongoose.Types.ObjectId)
   const Message = require('./message.model')(joi, mongoose, { joi2MongoSchema })
-  const schemas = { Message }
+  const Channel = require('./channel.model')(joi, mongoose, { joi2MongoSchema })
+  const schemas = { Message, Channel }
   const schemaValidator = (obj, type) => {
     const schema = schemas[type]
     if (schema) {

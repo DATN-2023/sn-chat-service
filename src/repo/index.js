@@ -1,6 +1,7 @@
 const repo = (container) => {
   const messageRepo = require('./messageRepo')(container)
-  return { messageRepo }
+  const channelRepo = require('./channelRepo')(container)
+  return { messageRepo, channelRepo }
 }
 const connect = (container) => {
   const dbPool = container.resolve('db')

@@ -1,4 +1,5 @@
 module.exports = (container) => {
   const messageController = require('./messageController')(container)
-  return { messageController }
+  const channelController = require('./channelController')(container)
+  return { messageController, channelController }
 }

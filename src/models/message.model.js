@@ -1,13 +1,22 @@
 module.exports = (joi, mongoose, { joi2MongoSchema, schemas }) => {
+  const { ObjectId } = mongoose.Types
   const messageJoi = joi.object({
     messageFrom: joi.string().required(),
-    messageTo: joi.string().required(),
-    content: joi.string().required()
+    content: joi.string().required(),
+    channel: joi.string().required()
   })
   const messageSchema = joi2MongoSchema(messageJoi, {
-    ma: {
-      unique: true,
-      uppercase: true
+    messageFrom: {
+      type: ObjectId,
+      index: true
+    },
+    messageTo: {
+      type: ObjectId,
+      index: true
+    },
+    channel: {
+      type: ObjectId,
+      ref: 'Channel'
     }
   }, {
     createdAt: {
