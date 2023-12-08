@@ -6,6 +6,7 @@ const middleware = require('./middleware')
 const server = require('./server')
 const models = require('./models')
 const controller = require('./controller')
+const socketHandler = require('./socketHandler')
 const { connect } = require('./database')
 const repo = require('./repo')
 const EventEmitter = require('events').EventEmitter
@@ -24,6 +25,7 @@ mediator.once('di.ready', container => {
     const repository = repo.connect(container)
     container.registerValue('repo', repository)
     container.registerValue('controller', controller(container))
+    container.registerValue('socketHandler', socketHandler(container))
     container.registerValue('middleware', middleware(container))
     server.start(container).then(app => {
       logger.d('Server started at port ', app.address().port)

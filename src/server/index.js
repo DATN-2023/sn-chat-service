@@ -4,6 +4,9 @@ const helmet = require('helmet')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const api = require('../api')
+const { createServer } = require("http");
+const { Server } = require("socket.io");
+const socket = require('../socket')
 const start = (container) => {
   return new Promise((resolve, reject) => {
     const { serverSettings } = container.resolve('config')
@@ -28,7 +31,14 @@ const start = (container) => {
       return next()
     })
     api(app, container)
-    const server = app.listen(port, () => resolve(server))
+    const httpServer = createServer(app);
+    const io = new Server(httpServer, {})
+    const {onConnection} = socket(container)
+    io.engine.use(helmet())
+    io.engine.use(cors())
+    io.on("connection", (socket) => onConnection(socket))
+    container.registerValue('io', io)
+    const server = httpServer.listen(port, () => resolve(server))
   })
 }
 module.exports = { start }
