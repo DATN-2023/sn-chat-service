@@ -3,5 +3,6 @@ module.exports = container => {
 
   return (socket) => {
     socket.on('channel:create', channelHandler.addChannel)
+    socket.on('channel:getChannels', channelHandler.getChannel)
   }
 }

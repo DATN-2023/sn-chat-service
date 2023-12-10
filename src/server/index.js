@@ -7,6 +7,7 @@ const api = require('../api')
 const { createServer } = require("http");
 const { Server } = require("socket.io");
 const socket = require('../socket')
+const socketHandler = require('../socketHandler')
 const start = (container) => {
   return new Promise((resolve, reject) => {
     const { serverSettings } = container.resolve('config')
@@ -33,11 +34,15 @@ const start = (container) => {
     api(app, container)
     const httpServer = createServer(app);
     const io = new Server(httpServer, {})
-    const {onConnection} = socket(container)
+    container.registerValue('io', io)
+    container.registerValue('socketHandler', socketHandler(container))
+    const {onConnection} = socket(io, container)
     io.engine.use(helmet())
     io.engine.use(cors())
-    io.on("connection", (socket) => onConnection(socket))
-    container.registerValue('io', io)
+    io.on("connection", (socket) => {
+      socket.emit("hello", "friend")
+      onConnection(socket)
+    })
     const server = httpServer.listen(port, () => resolve(server))
   })
 }

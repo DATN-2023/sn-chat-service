@@ -10,7 +10,8 @@ const httpCode = {
   TOKEN_EXPIRED: 409,
   UNKNOWN_ERROR: 520,
   FORBIDDEN: 403,
-  ADMIN_REQUIRE: 406
+  ADMIN_REQUIRE: 406,
+  UNAUTHORIZED: 401,
 }
 
 const dbSettings = {
@@ -25,7 +26,7 @@ const dbSettings = {
 const serverHelper = function () {
   const jwt = require('jsonwebtoken')
   const crypto = require('crypto')
-  const secretKey = process.env.SECRET_KEY || '112customer#$!@!'
+  const secretKey = process.env.SECRET_KEY || '123'
 
   function decodeToken (token) {
     return jwt.decode(token)

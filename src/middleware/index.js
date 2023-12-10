@@ -53,5 +53,39 @@ module.exports = (container) => {
     }
     return next()
   }
-  return { verifyInternalToken, verifyCMSToken }
+  const verifyToken = async (req, res, next) => {
+    try {
+      const token = req.headers['x-access-token'] || req.body.token || ''
+      if (!token) {
+        console.log('UNAUTHORIZED 66')
+        return res.status(httpCode.UNAUTHORIZED).json({})
+      }
+      req.userToken = serverHelper.verifyToken(token)
+      // todo: check xem user co bi block hay gi k con kick ra
+      return next()
+    } catch (e) {
+      logger.e(e)
+      return res.status(httpCode.UNAUTHORIZED).json({})
+    }
+
+  }
+
+  const verifySocketToken = async (socket, next) => {
+    try {
+      const token = socket.handshake.auth.token
+      const data = socket.data
+      console.log(data)
+      if (!token) {
+        console.log('UNAUTHORIZED 66')
+        next(new Error("invalid"));
+      }
+      socket.data.userToken = await serverHelper.verifyToken(token)
+      next()
+    } catch (e) {
+      logger.e(e)
+      next(new Error("invalid"));
+    }
+  }
+
+  return { verifyInternalToken, verifyCMSToken, verifyToken, verifySocketToken }
 }
