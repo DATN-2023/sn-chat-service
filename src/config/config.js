@@ -48,6 +48,23 @@ const serverHelper = function () {
     return crypto.createHash('sha256').update(password, 'binary').digest('base64')
   }
 
-  return { decodeToken, encryptPassword, verifyToken, genToken }
+  const mapUserWithTarget = (users, mapTarget) => {
+    if (mapTarget.constructor === Object) {
+      mapTarget.user = users[0]
+      return
+    }
+    const userMap = {}
+    for (const user of users) {
+      userMap[user.customerId] = user
+    }
+    for (const item of mapTarget) {
+      item.user = userMap[item.createdBy || item.user]
+    }
+  }
+
+  return { decodeToken, encryptPassword, verifyToken, genToken, mapUserWithTarget }
 }
-module.exports = { dbSettings, serverHelper: serverHelper(), serverSettings, httpCode }
+const urlConfig = {
+  userUrl: process.env.USER_URL || 'http://localhost:8006',
+}
+module.exports = { dbSettings, serverHelper: serverHelper(), serverSettings, httpCode, urlConfig }

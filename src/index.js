@@ -8,6 +8,7 @@ const models = require('./models')
 const controller = require('./controller')
 const { connect } = require('./database')
 const repo = require('./repo')
+const helper = require('./helper')
 const EventEmitter = require('events').EventEmitter
 const mediator = new EventEmitter()
 logger.d(`${name} Service`)
@@ -17,6 +18,7 @@ mediator.once('di.ready', container => {
   container.registerValue('middleware', middleware)
   container.registerValue('logger', logger)
   container.registerValue('mediator', mediator)
+  container.registerValue('helper', helper(container))
   mediator.once('db.ready', db => {
     logger.d('db.ready, starting server')
     container.registerValue('db', db)

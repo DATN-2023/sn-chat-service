@@ -8,7 +8,9 @@ module.exports = container => {
       Channel
     }
   } = container.resolve('models')
-  const { httpCode } = container.resolve('config')
+  const { channelTypeConfig } = Channel.getConfig()
+  const { httpCode, serverHelper } = container.resolve('config')
+  const { userHelper } = container.resolve('helper')
   const { channelRepo } = container.resolve('repo')
 
   const addChannel = async (req, res) => {
@@ -69,27 +71,34 @@ module.exports = container => {
           pipe[i] = vl
         }
       })
-      const data = await channelRepo.getChannel(pipe, perPage, skip, sort).lean()
+      pipe.members = user._id
+      const channels = await channelRepo.getChannel(pipe, perPage, skip, sort).lean()
+      const userChannels = channels.filter(channel => channel.type === channelTypeConfig.USER)
+      const users = []
+      for (const channel of userChannels) {
+        for (const uid of channel.members) {
+          if (uid !== user._id) {
+            channel.user = uid
+            users.push(uid)
+          }
+        }
+      }
+      const { data, statusCode } = await userHelper.getUser({ ids: users })
+      if (statusCode !== httpCode.SUCCESS) {
+        return io.emit('client:channel:getChannels', {
+          ok: false
+        })
+      }
+      serverHelper.mapUserWithTarget(data, channels)
       const total = await channelRepo.getCount(pipe)
-      io.emit('client:channel:getChannels', {
+      io.emit(`client:channel:getChannels-${user._id}`, {
         perPage,
         skip,
         sort,
-        data,
+        data: channels,
         total,
         page
       })
-      // return {
-      //   data
-      // }
-      // res.status(httpCode.SUCCESS).send({
-      //   perPage,
-      //   skip,
-      //   sort,
-      //   data,
-      //   total,
-      //   page
-      // })
     } catch (e) {
       logger.e(e)
       // res.status(httpCode.UNKNOWN_ERROR).send({ ok: false })

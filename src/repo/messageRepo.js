@@ -35,6 +35,9 @@ module.exports = container => {
   const removeMessage = (pipe) => {
     return Message.deleteMany(pipe)
   }
+  const findOne = (pipe) => {
+    return Message.findOne(pipe)
+  }
   return {
     getMessageNoPaging,
     removeMessage,
@@ -45,6 +48,7 @@ module.exports = container => {
     updateMessage,
     checkIdExist,
     getCount,
-    getMessage
+    getMessage,
+    findOne
   }
 }

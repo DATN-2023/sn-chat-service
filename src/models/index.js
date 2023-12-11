@@ -36,6 +36,8 @@ const joi2MongoSchema = (joiSchema, special = {}, schemaOnly = {}, joiOnly = {})
   return mongoose.Schema(schemaObj)
 }
 module.exports = container => {
+  const castObjectId = mongoose.ObjectId.cast()
+  mongoose.ObjectId.cast(v => v === '' ? v : castObjectId(v))
   container.registerValue('ObjectId', mongoose.Types.ObjectId)
   const Message = require('./message.model')(joi, mongoose, { joi2MongoSchema })
   const Channel = require('./channel.model')(joi, mongoose, { joi2MongoSchema })

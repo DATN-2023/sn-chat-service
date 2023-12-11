@@ -35,6 +35,9 @@ module.exports = container => {
   const removeChannel = (pipe) => {
     return Channel.deleteMany(pipe)
   }
+  const findOne = (pipe) => {
+    return Channel.findOne(pipe)
+  }
   return {
     getChannelNoPaging,
     removeChannel,
@@ -45,6 +48,7 @@ module.exports = container => {
     updateChannel,
     checkIdExist,
     getCount,
-    getChannel
+    getChannel,
+    findOne
   }
 }
