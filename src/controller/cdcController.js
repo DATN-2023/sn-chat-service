@@ -7,17 +7,32 @@ module.exports = (container) => {
       Channel
     }
   } = container.resolve('models')
-  const { httpCode, serverHelper } = container.resolve('config')
+  const { channelTypeConfig } = Channel.getConfig()
+  const {
+    httpCode,
+    serverHelper
+  } = container.resolve('config')
   const { channelRepo } = container.resolve('repo')
   const addChannel = async (req, res) => {
     try {
-      const thoauoc = req.body
+      const body = req.body
       const {
         error,
         value
-      } = await schemaValidator(thoauoc, 'Channel')
+      } = await schemaValidator(body, 'Channel')
       if (error) {
         return res.status(httpCode.BAD_REQUEST).send({ msg: error.channel })
+      }
+      const {
+        members,
+        type
+      } = value
+      if (type === channelTypeConfig.USER) {
+        const channel = await channelRepo.findOne({
+          members,
+          type
+        })
+        if (channel) return res.status(httpCode.SUCCESS).json(channel)
       }
       const sp = await channelRepo.addChannel(value)
       res.status(httpCode.CREATED).send(sp)
