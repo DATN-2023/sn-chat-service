@@ -7,8 +7,7 @@ module.exports = (joi, mongoose, { joi2MongoSchema, schemas }) => {
   const channelJoi = joi.object({
     name: joi.string().default('').allow(''),
     members: joi.array().items(joi.string()).min(1).max(50),
-    type: joi.number().valid(...Object.values(channelTypeConfig)).default(channelTypeConfig.USER),
-    message: joi.string().allow('').default('')
+    type: joi.number().valid(...Object.values(channelTypeConfig)).default(channelTypeConfig.USER)
   })
   const channelSchema = joi2MongoSchema(channelJoi, {
     members: {
