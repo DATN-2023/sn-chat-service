@@ -1,41 +1,29 @@
-module.exports = container => {
+module.exports = (container) => {
   const logger = container.resolve('logger')
-  const io = container.resolve('io')
   const ObjectId = container.resolve('ObjectId')
   const {
     schemaValidator,
     schemas: {
-      Channel,
       Message
     }
   } = container.resolve('models')
-  const { channelTypeConfig } = Channel.getConfig()
   const { httpCode, serverHelper } = container.resolve('config')
-  const { userHelper } = container.resolve('helper')
-  const { messageRepo, channelRepo } = container.resolve('repo')
-
-  async function addMessage (payload) {
-    const user = this.data.userToken
+  const { messageRepo } = container.resolve('repo')
+  const getMessageById = async (req, res) => {
     try {
-      payload.messageFrom = user._id
-      const {
-        error,
-        value
-      } = await schemaValidator(payload, 'Message')
-      if (error) {
-        return io.emit(`client:listener-${user._id || ''}`, { ok: false })
-      }
-      const sp = await messageRepo.addMessage(value)
-      const channel = await channelRepo.findOne({ _id: sp.channel.toString() })
-      for (const member of channel.members) {
-        io.emit(`client:listener-${member || ''}`, value)
+      const { id } = req.params
+      if (id) {
+        const message = await messageRepo.getMessageById(id)
+        res.status(httpCode.SUCCESS).send(message)
+      } else {
+        res.status(httpCode.BAD_REQUEST).end()
       }
     } catch (e) {
       logger.e(e)
-      return io.emit(`client:listener-${user._id || ''}`, { ok: false })
+      res.status(httpCode.UNKNOWN_ERROR).send({ ok: false })
     }
   }
-  async function getMessage (payload) {
+  const getMessage = async (req, res) => {
     try {
       let {
         page,
@@ -88,9 +76,8 @@ module.exports = container => {
       res.status(httpCode.UNKNOWN_ERROR).send({ ok: false })
     }
   }
-
   return {
-    addMessage,
-    getMessage
+    getMessage,
+    getMessageById
   }
 }
