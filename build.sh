@@ -1,1 +1,1 @@
-git pull && docker build . -t hddt-backend-customer
+git pull && docker build . -t sn-chat-service
