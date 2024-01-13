@@ -28,8 +28,9 @@ module.exports = (container) => {
         type
       } = value
       if (type === channelTypeConfig.USER) {
+        const query = members.map(member => ({members: member}))
         const channel = await channelRepo.findOne({
-          members,
+          $and: query,
           type
         })
         if (channel) return res.status(httpCode.SUCCESS).json(channel)
